@@ -1,36 +1,45 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+## FireTrack: Firebase + Next.js Practice Playground
 
-## Getting Started
+FireTrack is a learning project designed to explore the end-to-end workflow of building, testing, and deploying a modern web app with Next.js and Firebase (Auth, Firestore, Storage, Functions, Messaging). The goal is to understand how Firebase Studio, local tools, and collaborative coding assistants fit together.
 
-First, run the development server:
+### Project Vision
+- Ship a personal habit tracker that supports user sign-in, daily habit logging, streak insights, and optional sharing with friends.
+- Treat Firebase Studio and local development as a unified workflow: build locally with Codex + Emulator Suite, review and iterate in Firebase Studio, then deploy to Firebase Hosting.
+- Document decisions and lessons so future Firebase projects spin up quickly.
 
+### Tech Stack
+- **Frontend:** Next.js App Router, TypeScript, Tailwind CSS (optional, TBD).
+- **Firebase:** Authentication, Firestore, Cloud Functions, Cloud Storage, Cloud Messaging, Emulator Suite, Firebase Hosting.
+- **Tooling:** npm scripts, ESLint, Prettier (configure later), GitHub or similar for remote sync.
+
+### Learning Goals
+- Practice securing Firestore with per-user rules and validating writes server-side.
+- Explore Firebase Studio’s data browser, rule editor, and deployment dashboards.
+- Automate deployments via `firebase deploy` once CI/CD needs become clear.
+- Understand how to wire Cloud Messaging and scheduled reminders into Next.js flows.
+
+### Planned Milestones
+1. Scaffold base UI and set up Firebase config (env handling, Emulator Suite).
+2. Implement authentication (email/password + one social provider).
+3. Create habit CRUD UI, logging flow, and daily streak calculations.
+4. Add user profiles with avatar upload (Firebase Storage) and sharing controls.
+5. Introduce reminders via Cloud Functions + Messaging; explore analytics/reporting.
+6. Harden security rules, add tests, and polish deployment pipeline.
+
+### Getting Started Locally
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
+Visit `http://localhost:3000` while iterating. Firebase emulator setup and environment variable instructions will be added once the Firebase project is initialized.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Workflow Notes
+- Keep work on `main`; branch off for larger experiments and merge back once tested.
+- Always pull latest before starting a session (whether local or in Firebase Studio) to avoid drift.
+- Track environment-specific steps and troubleshooting tips in this README or a `/docs` folder.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### Next Actions
+- [ ] Initialize Firebase (CLI + Studio) and capture configuration steps.
+- [ ] Decide on design system (Tailwind vs. CSS modules).
+- [ ] Plan initial data models (`users`, `habits`, `entries`) and draft rules.
+- [ ] Create a basic landing page describing the project for quick demos.
