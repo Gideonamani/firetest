@@ -31,8 +31,12 @@
     ],
     "rewrites": [
       {
+        "source": "/api/**",
+        "function": "nextApp"
+      },
+      {
         "source": "**",
-        "destination": "/index.html"
+        "function": "nextApp"
       }
     ]
   },

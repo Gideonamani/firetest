@@ -33,6 +33,11 @@ npm run dev
 ```
 Visit `http://localhost:3000` while iterating. Firebase emulator setup and environment variable instructions will be added once the Firebase project is initialized.
 
+### Local Development Workflow
+- Run `npm run dev` for the Next.js app.
+- In a separate terminal, start Firebase services with `npx firebase emulators:start`.
+- The hosting config rewrites traffic to a forthcoming Cloud Function named `nextApp`, which will serve SSR content once the Next.js build pipeline is wired up.
+
 ### Workflow Notes
 - Keep work on `main`; branch off for larger experiments and merge back once tested.
 - Always pull latest before starting a session (whether local or in Firebase Studio) to avoid drift.
