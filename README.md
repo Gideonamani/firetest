@@ -36,7 +36,7 @@ Visit `http://localhost:3000` while iterating. Firebase emulator setup and envir
 ### Local Development Workflow
 - Run `npm run dev` for the Next.js app.
 - In a separate terminal, start Firebase services with `npx firebase emulators:start`.
-- Firebase Web Frameworks handles SSR builds and Hosting rewrites; deploy with `firebase deploy --only hosting` to generate and upload the Next.js backend.
+- Firebase Web Frameworks handles SSR builds and Hosting rewrites; deploy with `firebase deploy --only hosting` to generate and upload the Next.js backend (deployed to `europe-west1` because SSR hosting does not yet support `africa-south1`).
 
 ### Workflow Notes
 - Keep work on `main`; branch off for larger experiments and merge back once tested.

@@ -30,7 +30,7 @@
       "**/node_modules/**"
     ],
     "frameworksBackend": {
-      "region": "africa-south1"
+      "region": "europe-west1"
     }
   },
   "storage": {
