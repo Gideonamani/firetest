@@ -35,8 +35,20 @@ Visit `http://localhost:3000` while iterating. Firebase emulator setup and envir
 
 ### Local Development Workflow
 - Run `npm run dev` for the Next.js app.
-- In a separate terminal, start Firebase services with `npx firebase emulators:start`.
+- In a separate terminal, start Firebase services with `npx firebase emulators:start --import=.emulator-data --export-on-exit` (optional import/export keeps test data between runs).
+- Copy `.env.local.example` to `.env.local`, fill in Firebase credentials, and keep `NEXT_PUBLIC_USE_FIREBASE_EMULATORS=true` for local development.
 - Firebase Web Frameworks handles SSR builds and Hosting rewrites; deploy with `firebase deploy --only hosting` to generate and upload the Next.js backend (deployed to `europe-west1` because SSR hosting does not yet support `africa-south1`).
+
+### Firebase Configuration
+- `.env.local.example` documents all required client-side config keys and emulator ports.
+- `src/lib/firebase/client.ts` bootstraps the Firebase JS SDK, toggling emulator connections when `NEXT_PUBLIC_USE_FIREBASE_EMULATORS=true`.
+- Firestore security rules live in `firestore.rules` and are explained in `docs/data-model.md`.
+
+### Emulator + Function Testing
+- Launch the suite: `npx firebase emulators:start --import=.emulator-data --export-on-exit`.
+- Seed data via the Emulator UI or REST API (see `docs/data-model.md`).
+- Recompute streaks locally: `curl http://127.0.0.1:5001/<project-id>/europe-west1/calculateStreaks`.
+- Alternatively, within the emulator shell run `npx firebase functions:shell` then call `calculateStreaks()`.
 
 ### Workflow Notes
 - Keep work on `main`; branch off for larger experiments and merge back once tested.
@@ -44,7 +56,7 @@ Visit `http://localhost:3000` while iterating. Firebase emulator setup and envir
 - Track environment-specific steps and troubleshooting tips in this README or a `/docs` folder.
 
 ### Next Actions
-- [ ] Initialize Firebase (CLI + Studio) and capture configuration steps.
+- [x] Initialize Firebase (CLI + Studio) and capture configuration steps.
 - [ ] Decide on design system (Tailwind vs. CSS modules).
-- [ ] Plan initial data models (`users`, `habits`, `entries`) and draft rules.
+- [x] Plan initial data models (`users`, `habits`, `entries`) and draft rules.
 - [ ] Create a basic landing page describing the project for quick demos.

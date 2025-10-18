@@ -1,18 +1,141 @@
-rules_version='2'
+rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    match /{document=**} {
-      // This rule allows anyone with your database reference to view, edit,
-      // and delete all data in your database. It is useful for getting
-      // started, but it is configured to expire after 30 days because it
-      // leaves your app open to attackers. At that time, all client
-      // requests to your database will be denied.
-      //
-      // Make sure to write security rules for your app before that time, or
-      // else all client requests to your database will be denied until you
-      // update your rules.
-      allow read, write: if request.time < timestamp.date(2025, 11, 16);
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(ownerId) {
+      return isSignedIn() && request.auth.uid == ownerId;
+    }
+
+    function habitPath(habitId) {
+      return '/databases/' + database + '/documents/habits/' + habitId;
+    }
+
+    function fetchHabit(habitId) {
+      return get(habitPath(habitId));
+    }
+
+    function isSharedWithMe(data) {
+      return isSignedIn() && data.sharedWith != null &&
+        data.sharedWith is list && data.sharedWith.hasAny([request.auth.uid]);
+    }
+
+    function canAccessHabit(habit) {
+      return habit.exists() &&
+        (isOwner(habit.data.ownerId) || isSharedWithMe(habit.data) ||
+          habit.data.visibility == 'public');
+    }
+
+    function validHabit(data) {
+      return data.ownerId is string &&
+        data.title is string &&
+        data.title.size() > 0 &&
+        data.title.size() <= 120 &&
+        data.createdAt is timestamp &&
+        data.updatedAt is timestamp &&
+        (!data.keys().hasAny(['description']) ||
+          (data.description is string && data.description.size() <= 500)) &&
+        (!data.keys().hasAny(['visibility']) ||
+          (data.visibility in ['private', 'shared', 'public'])) &&
+        (!data.keys().hasAny(['sharedWith']) ||
+          (data.sharedWith is list && data.sharedWith.size() <= 20)) &&
+        (!data.keys().hasAny(['reminderMinutes']) ||
+          (data.reminderMinutes is int && data.reminderMinutes >= 0 &&
+            data.reminderMinutes < 24 * 60)) &&
+        (!data.keys().hasAny(['lastEntryAt']) ||
+          data.lastEntryAt is timestamp) &&
+        (!data.keys().hasAny(['currentStreak']) ||
+          (data.currentStreak is int && data.currentStreak >= 0)) &&
+        (!data.keys().hasAny(['longestStreak']) ||
+          (data.longestStreak is int && data.longestStreak >= 0)) &&
+        data.keys().hasOnly([
+          'ownerId',
+          'title',
+          'description',
+          'visibility',
+          'sharedWith',
+          'createdAt',
+          'updatedAt',
+          'reminderMinutes',
+          'currentStreak',
+          'longestStreak',
+          'lastEntryAt',
+        ]);
+    }
+
+    function validEntry(data) {
+      return data.performedAt is timestamp &&
+        data.performedAt <= request.time &&
+        (!data.keys().hasAny(['note']) ||
+          (data.note is string && data.note.size() <= 500)) &&
+        (!data.keys().hasAny(['mood']) ||
+          (data.mood is string && data.mood.size() <= 30)) &&
+        data.keys().hasOnly(['performedAt', 'note', 'mood']);
+    }
+
+    function validUserProfile(data, uid) {
+      return data.keys().hasOnly([
+        'displayName',
+        'photoURL',
+        'timezone',
+        'createdAt',
+        'updatedAt',
+      ]) &&
+        (!data.keys().hasAny(['displayName']) ||
+          (data.displayName is string && data.displayName.size() <= 120)) &&
+        (!data.keys().hasAny(['photoURL']) || data.photoURL is string) &&
+        (!data.keys().hasAny(['timezone']) || data.timezone is string) &&
+        data.createdAt is timestamp &&
+        data.updatedAt is timestamp &&
+        isOwner(uid);
+    }
+
+    match /users/{userId} {
+      allow create: if request.auth != null &&
+        request.auth.uid == userId &&
+        validUserProfile(request.resource.data, userId);
+
+      allow read: if isOwner(userId);
+
+      allow update: if request.auth != null &&
+        request.auth.uid == userId &&
+        validUserProfile(request.resource.data, userId);
+
+      allow delete: if isOwner(userId);
+    }
+
+    match /habits/{habitId} {
+      allow create: if isSignedIn() &&
+        request.resource.data.ownerId == request.auth.uid &&
+        validHabit(request.resource.data);
+
+      allow read: if canAccessHabit(fetchHabit(habitId));
+
+      allow update: if let habit = fetchHabit(habitId);
+        habit.exists() &&
+        isOwner(habit.data.ownerId) &&
+        request.resource.data.ownerId == resource.data.ownerId &&
+        validHabit(request.resource.data);
+
+      allow delete: if let habit = fetchHabit(habitId);
+        habit.exists() && isOwner(habit.data.ownerId);
+
+      match /entries/{entryId} {
+        allow read: if canAccessHabit(fetchHabit(habitId));
+
+        allow create: if let habit = fetchHabit(habitId);
+          habit.exists() &&
+          isOwner(habit.data.ownerId) &&
+          validEntry(request.resource.data);
+
+        allow update, delete: if let habit = fetchHabit(habitId);
+          habit.exists() &&
+          isOwner(habit.data.ownerId) &&
+          validEntry(request.resource.data);
+      }
     }
   }
 }

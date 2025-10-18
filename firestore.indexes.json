@@ -46,6 +46,15 @@
   //     ]
   //   },
   // ]
-  "indexes": [],
+  "indexes": [
+    {
+      "collectionGroup": "habits",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {"fieldPath": "ownerId", "mode": "ASCENDING"},
+        {"fieldPath": "createdAt", "mode": "DESCENDING"}
+      ]
+    }
+  ],
   "fieldOverrides": []
 }
